@@ -13,7 +13,7 @@ const AccountSelector: React.FC<accountSelectorProps> = ({
   onSelect,
   accounts,
 }) => (
-  <View className="mb-6 bg-dark-800 rounded-xl p-2 text-text_primary ">
+  <View className="bg-dark-800 rounded-xl p-2 text-text_primary ">
     <FlatList
       data={accounts}
       keyExtractor={(item) => item.id}

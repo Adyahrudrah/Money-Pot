@@ -12,7 +12,7 @@ const AccountTypeSelector: React.FC<AccountTypeSelectorProps> = ({
   onSelect,
   accountTypes,
 }) => (
-  <View className="mb-6 bg-zinc-800 rounded-xl p-2">
+  <View className="mb-4 bg-zinc-800 rounded-xl p-2">
     <FlatList
       data={accountTypes}
       keyExtractor={(item) => item.name}

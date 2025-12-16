@@ -32,18 +32,51 @@ export interface SmsMessage {
   sync_state: number;
   thread_id: number;
   type: number;
+  account_id?: string;
+}
+
+export type AccountType =
+  | "credit-card"
+  | "debit-card"
+  | "digital-wallet"
+  | "cash";
+
+export interface AccountTypeList {
+  name: string;
+  value: AccountType;
+}
+
+export const AccountTypes: AccountTypeList[] = [
+  { name: "Credit Card", value: "credit-card" },
+  { name: "Debit Card", value: "debit-card" },
+  { name: "Digital Wallet", value: "digital-wallet" },
+  { name: "Cash", value: "cash" },
+];
+
+export interface Account {
+  id: string;
+  account_name: string;
+  account_type: AccountTypeList;
+  balance: number;
+  currency_type: Currency;
+  added_date: number;
+  parent_account_id: string | null;
+  transactions: Transaction[];
+  limit?: number | null;
 }
 
 export interface Transaction {
+  message_body: string;
   id: number;
-  type?: "credit" | "debit";
-  amount?: number;
+  date: number;
+  amount: number;
+  type: "credit" | "debit";
   name?: string;
-  date?: number;
   counter_party?: string;
   category?: string;
   notes?: string;
   tags?: string[];
+  account_id?: string;
 }
 
 export const debit_categories = [
@@ -139,31 +172,3 @@ export const currencies: Currency[] = [
   { sign: "QR", name: "QAR", country: "Qatar" },
   { sign: "ر.س", name: "SAR", country: "Saudi Arabia" },
 ];
-
-export type AccountType =
-  | "credit-card"
-  | "debit-card"
-  | "digital-wallet"
-  | "cash";
-
-export interface AccountTypeList {
-  name: string;
-  value: AccountType;
-}
-
-export const AccountTypes: AccountTypeList[] = [
-  { name: "Credit Card", value: "credit-card" },
-  { name: "Debit Card", value: "debit-card" },
-  { name: "Digital Wallet", value: "digital-wallet" },
-  { name: "Cash", value: "cash" },
-];
-
-export interface Account {
-  id: string;
-  account_name: string;
-  account_type: AccountTypeList;
-  balance: string;
-  currency_type: Currency;
-  parent_account_id: string | null;
-  transactions?: Transaction[];
-}

@@ -7,9 +7,10 @@ import {
 } from "@/types/type";
 import React from "react";
 import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
-import AccountSelector from "./accountSelector";
+import { SafeAreaView } from "react-native-safe-area-context";
 import AccountTypeSelector from "./accountTypeSelector";
 import CurrencySelector from "./currencySelector";
+import AccountSelector from "./parentAccSelector";
 
 interface AddAccountModalProps {
   parentAccount: string | null;
@@ -21,8 +22,10 @@ interface AddAccountModalProps {
   handleId: (value: string) => void;
   accountName: string;
   handleAccountName: (value: string) => void;
-  balance: string;
-  handleBalance: (value: string) => void;
+  balance: number;
+  handleBalance: (value: number) => void;
+  limit: number;
+  handleLimit: (value: number) => void;
   currencyType: Currency;
   handleCurrency: (currency: Currency) => void;
   accountType: AccountTypeList;
@@ -38,6 +41,8 @@ const AddAccountModal = ({
   handleModalVisibility,
   balance,
   handleBalance,
+  limit,
+  handleLimit,
   id,
   handleId,
   accountName,
@@ -64,40 +69,77 @@ const AddAccountModal = ({
   }, [currencyType]);
 
   return (
-    <Modal visible={modalVisible} transparent animationType="slide">
-      <View className="flex-1 bg-primary justify-end">
-        <View className="bg-zinc-900 rounded-t-3xl p-6">
-          <Text className="text-text_primary text-2xl font-bold mb-6">
+    <Modal visible={modalVisible} transparent={false} animationType="slide">
+      <SafeAreaView className="flex-1 bg-primary justify-start bg-bg_primary">
+        <View className="rounded-t-3xl p-4">
+          <Text className="text-text_primary text-2xl font-bold mb-4">
             Add New Account
           </Text>
 
-          <TextInput
-            placeholder="Last 4 digits"
-            placeholderTextColor="#71717a"
-            value={id}
-            onChangeText={handleId}
-            keyboardType="numeric"
-            maxLength={4}
-            className="bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
+          <AccountTypeSelector
+            currentAccountType={accountType}
+            onSelect={handleAccountType}
+            accountTypes={AccountTypes}
           />
 
-          <TextInput
-            placeholder="Bank or Card Provider Name.."
-            placeholderTextColor="#71717a"
-            value={accountName}
-            onChangeText={handleAccountName}
-            keyboardType="default"
-            className="bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
-          />
+          {accountType.value === "credit-card" && (
+            <View className="flex-row items-center">
+              <Text className="flex-1 text-text_primary font-bold">
+                Card Limit
+              </Text>
+              <TextInput
+                placeholder="Credit limit"
+                placeholderTextColor="#71717a"
+                value={limit?.toString()}
+                onChangeText={(value) =>
+                  handleLimit(
+                    parseFloat(isNaN(parseFloat(value)) ? "0" : value)
+                  )
+                }
+                keyboardType="decimal-pad"
+                className="flex-1 bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
+              />
+            </View>
+          )}
 
-          <TextInput
-            placeholder="Initial balance"
-            placeholderTextColor="#71717a"
-            value={balance}
-            onChangeText={handleBalance}
-            keyboardType="decimal-pad"
-            className="bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
-          />
+          <View className="flex-row items-center mb-4">
+            <Text className="flex-1 text-text_primary font-bold">
+              Current Balance
+            </Text>
+            <TextInput
+              placeholder="Current balance"
+              placeholderTextColor="#71717a"
+              value={balance.toString()}
+              onChangeText={(value) =>
+                handleBalance(
+                  parseFloat(isNaN(parseFloat(value)) ? "0" : value)
+                )
+              }
+              keyboardType="decimal-pad"
+              className="flex-1 bg-zinc-800 text-text_primary rounded-xl px-4 py-4"
+            />
+          </View>
+
+          <View className="flex-row gap-2">
+            <TextInput
+              placeholder="Last 4 digits"
+              placeholderTextColor="#71717a"
+              value={id}
+              onChangeText={handleId}
+              keyboardType="numeric"
+              maxLength={4}
+              className="flex-2 bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
+            />
+
+            <TextInput
+              placeholder="Bank Name"
+              placeholderTextColor="#71717a"
+              value={accountName}
+              onChangeText={handleAccountName}
+              keyboardType="default"
+              className="flex-1 bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
+            />
+          </View>
 
           {accounts.length > 0 && (
             <AccountSelector
@@ -110,12 +152,6 @@ const AddAccountModal = ({
             currentCurrency={currencyType}
             onSelect={handleCurrency}
             currencies={sortedCurrencies}
-          />
-
-          <AccountTypeSelector
-            currentAccountType={accountType}
-            onSelect={handleAccountType}
-            accountTypes={AccountTypes}
           />
 
           <View className="flex-row gap-4">
@@ -138,7 +174,7 @@ const AddAccountModal = ({
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };

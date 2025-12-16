@@ -13,10 +13,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import AccountCard from "../components/accountCard";
 import AddAccountModal from "../components/addAccountModal";
 import ConfirmRemoveModal from "../components/onConfirmModal";
-import { USER_ACCOUNTS_LS } from "../utils/keys";
+import { useAccounts } from "../contexts/AppContext";
+import KEYS from "../utils/keys";
+import { saveToAsyncStorage } from "../utils/utils";
 
 const Accounts = () => {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const { accounts, setAccounts, transactions } = useAccounts();
   const [parentAccountId, setParentAccountId] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [id, setId] = useState<string>("");
@@ -24,18 +26,31 @@ const Accounts = () => {
   const [accountType, setAccountType] = useState<AccountTypeList>(
     AccountTypes[0]
   );
-  const [balance, setBalance] = useState<string>("");
+  const [balance, setBalance] = useState<number>(0);
+  const [limit, setAccountLimit] = useState<number>(0);
   const [currencyType, setCurrencyType] = useState<Currency>(currencies[0]);
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [accountToRemove, setAccountToRemove] = useState<Account | null>(null);
 
   const loadAccounts = async () => {
     try {
-      const storedAccounts = await AsyncStorage.getItem(USER_ACCOUNTS_LS);
+      const storedAccounts = await AsyncStorage.getItem(KEYS.USER_ACCOUNTS_LS);
       if (storedAccounts !== null) {
-        const parsedAccounts = JSON.parse(storedAccounts);
+        const parsedAccounts: Account[] = JSON.parse(storedAccounts);
         if (parsedAccounts.length > 0) {
-          setAccounts(parsedAccounts);
+          if (transactions) {
+            const updatedAccounts = parsedAccounts.map((acc) => ({
+              ...acc,
+              transactions: transactions.filter(
+                (txs) => txs.account_id === acc.id
+              ),
+            }));
+            setAccounts(updatedAccounts);
+          } else {
+            console.log(parsedAccounts);
+            setAccounts(parsedAccounts);
+          }
+
           setCurrencyType(parsedAccounts[0].currency_type);
         }
       }
@@ -53,36 +68,31 @@ const Accounts = () => {
         setBalance(parentAccount.balance);
       }
     } else {
-      setBalance("");
+      setBalance(0);
     }
   }, [parentAccountId]);
-
-  const saveAccounts = async () => {
-    try {
-      const jsonValue = JSON.stringify(accounts);
-      await AsyncStorage.setItem(USER_ACCOUNTS_LS, jsonValue);
-    } catch (e) {
-      console.error("Failed to save accounts:", e);
-    }
-  };
 
   useEffect(() => {
     loadAccounts();
   }, []);
 
   useEffect(() => {
-    saveAccounts();
+    saveToAsyncStorage(KEYS.USER_ACCOUNTS_LS, JSON.stringify(accounts));
   }, [accounts]);
 
   const handleAddAccount = () => {
     if (id && balance && currencyType && accountType && accountName) {
+      saveToAsyncStorage(KEYS.CURRENCY_TYPE_LS, currencyType.sign);
       const newAccount: Account = {
         id,
         account_name: accountName,
         account_type: accountType,
         balance,
         currency_type: currencyType,
+        added_date: Date.now(),
         parent_account_id: parentAccountId,
+        transactions: [],
+        limit: limit ? limit : null,
       };
       const isExistingAccount = accounts.find((acc) => acc.id === id);
       if (!isExistingAccount) {
@@ -99,8 +109,11 @@ const Accounts = () => {
               account_name: accountName,
               account_type: accountType,
               balance,
+              added_date: accountToUpdate.added_date,
               currency_type: currencyType,
               parent_account_id: parentAccountId,
+              transactions: [],
+              limit: limit ? limit : accountToUpdate.limit,
             };
             return [...prevAccounts].map((acc) =>
               acc.id === newAccount.id ? newAccount : acc
@@ -113,7 +126,8 @@ const Accounts = () => {
       setModalVisible(false);
       setId("");
       setAccountName("");
-      setBalance("");
+      setBalance(0);
+      setAccountLimit(0);
     }
   };
 
@@ -124,6 +138,9 @@ const Accounts = () => {
     setAccountType(account.account_type);
     setBalance(account.balance);
     setParentAccountId(account.parent_account_id);
+    if (account.limit) {
+      setAccountLimit(account.limit);
+    }
   };
 
   const handleRemoveAccountRequest = (account: Account) => {
@@ -164,7 +181,7 @@ const Accounts = () => {
       <View className="flex-1 px-6 pt-8">
         {accounts.length === 0 ? (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-light-400 text-lg">
+            <Text className="text-text_primary text-lg">
               Your accounts will appear here...
             </Text>
           </View>
@@ -182,8 +199,8 @@ const Accounts = () => {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => setModalVisible(true)}
-        className="absolute right-6 bottom-6 w-16 h-16 rounded-full bg-accent justify-center items-center shadow-lg shadow-black/50"
-        style={{ elevation: 10 }}
+        className="absolute right-6 bottom-6 w-12 h-12 rounded-full bg-accent justify-center items-center shadow-lg shadow-black/50"
+        style={{ elevation: 1 }}
       >
         <Feather name="plus" size={32} color="white" />
       </TouchableOpacity>
@@ -200,6 +217,8 @@ const Accounts = () => {
         handleAccountName={(value) => setAccountName(value)}
         balance={balance}
         handleBalance={(value) => setBalance(value)}
+        limit={limit}
+        handleLimit={(value) => setAccountLimit(value)}
         accountType={accountType}
         handleAccountType={(value) => setAccountType(value)}
         currencyType={currencyType}
