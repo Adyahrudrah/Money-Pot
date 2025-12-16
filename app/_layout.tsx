@@ -1,24 +1,44 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import {
+  Outfit_400Regular,
+  Outfit_500Medium,
+  useFonts,
+} from "@expo-google-fonts/outfit";
+import { Stack } from "expo-router";
+import * as SplashScreenLib from "expo-splash-screen";
+import { useEffect } from "react";
+import { View } from "react-native"; // <-- Import View
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  SplashScreenLib.preventAutoHideAsync();
+  const [loaded, error] = useFonts({
+    OutfitRegular: Outfit_400Regular, // 400
+    OutfitMedium: Outfit_500Medium, // 500
+  });
+
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreenLib.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
+    <View className="flex-1">
+      <Stack
+        screenOptions={{
+          headerTitleStyle: {
+            fontFamily: "OutfitMedium",
+          },
+          headerBackTitleStyle: {
+            fontFamily: "OutfitRegular",
+          },
+        }}
+      >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </View>
   );
 }

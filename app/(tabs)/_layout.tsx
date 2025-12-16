@@ -1,33 +1,63 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Feather } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import React from "react";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function _Layout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+        tabBarActiveTintColor: "#f43f5e",
+        tabBarInactiveTintColor: "#71717a",
+        tabBarStyle: {
+          backgroundColor: "#18181b",
+          borderColor: "#18181b",
+        },
+        tabBarLabelStyle: {
+          fontFamily: "OutfitMedium",
+        },
+        headerTitleStyle: {
+          fontFamily: "OutfitMedium",
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          headerShown: false,
+          title: "Home",
+          tabBarIcon: ({ color }) => (
+            <Feather name="home" size={28} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="accounts"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          headerShown: false,
+          title: "Accounts",
+          tabBarIcon: ({ color }) => (
+            <Feather name="credit-card" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="trends"
+        options={{
+          headerShown: false,
+          title: "Trends",
+          tabBarIcon: ({ color }) => (
+            <Feather name="trending-up" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          headerShown: false,
+          title: "Settings",
+          tabBarIcon: ({ color }) => (
+            <Feather name="settings" size={28} color={color} />
+          ),
         }}
       />
     </Tabs>
