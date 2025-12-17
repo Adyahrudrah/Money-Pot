@@ -1,7 +1,7 @@
-import { Feather } from "@expo/vector-icons";
+import { Feather, Octicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
-import { AccountProvider } from "../contexts/AppContext";
+import { AccountProvider } from "../../contexts/AppContext";
 
 export default function _Layout() {
   return (
@@ -26,22 +26,23 @@ export default function _Layout() {
           name="index"
           options={{
             headerShown: false,
-            title: "Home",
-            tabBarIcon: ({ color }) => (
-              <Feather name="home" size={28} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="accounts"
-          options={{
-            headerShown: false,
-            title: "Accounts",
+            title: "Cards",
             tabBarIcon: ({ color }) => (
               <Feather name="credit-card" size={28} color={color} />
             ),
           }}
         />
+        <Tabs.Screen
+          name="txs"
+          options={{
+            headerShown: false,
+            title: "Transactions",
+            tabBarIcon: ({ color }) => (
+              <Octicons name="history" size={28} color={color} />
+            ),
+          }}
+        />
+
         <Tabs.Screen
           name="settings"
           options={{

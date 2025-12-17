@@ -75,7 +75,6 @@ const Settings = () => {
               const pairs = Object.entries(data).map(
                 ([k, v]) => [k, String(v)] as [string, string]
               );
-
               await AsyncStorage.clear();
               await AsyncStorage.multiSet(pairs);
               Alert.alert("Success", "Data restored. Please restart the app.");
@@ -90,29 +89,25 @@ const Settings = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-bg_primary">
+    <SafeAreaView className="flex-1 bg-bgc_1">
       <ScrollView className="px-6 pt-8">
-        <Text className="text-3xl font-bold text-text_primary mb-8">
-          Settings
-        </Text>
+        <Text className="text-3xl font-bold text-tc_1 mb-8">Settings</Text>
 
-        <View className="bg-bg_secondary rounded-3xl p-6 mb-6">
-          <Text className="text-bg_primary/60 font-bold text-xs uppercase tracking-widest mb-4">
+        <View className="bg-bgc_2 border border-bc_1 rounded-3xl p-6 mb-6">
+          <Text className="text-tc_1/60 font-bold text-xs uppercase tracking-widest mb-4">
             Data Management
           </Text>
 
           <TouchableOpacity
             onPress={exportData}
-            className="flex-row items-center bg-bg_tertiary p-4 rounded-2xl mb-4"
+            className="flex-row items-center bg-bgc_1 p-4 rounded-2xl mb-4"
           >
-            <View className="w-10 h-10 rounded-full bg-accent/20 items-center justify-center">
+            <View className="w-10 h-10 rounded-full bg-bgc_2 items-center justify-center">
               <Feather name="download" size={20} color="#f43f5e" />
             </View>
             <View className="ml-4">
-              <Text className="text-bg_primary font-semibold">
-                Backup to JSON
-              </Text>
-              <Text className="text-bg_primary/40 text-[10px]">
+              <Text className="text-tc_1 font-semibold">Backup to JSON</Text>
+              <Text className="text-tc_1/40 text-[10px]">
                 Export everything to a file
               </Text>
             </View>
@@ -120,16 +115,14 @@ const Settings = () => {
 
           <TouchableOpacity
             onPress={importData}
-            className="flex-row items-center bg-bg_tertiary p-4 rounded-2xl"
+            className="flex-row items-center bg-bgc_1 p-4 rounded-2xl"
           >
-            <View className="w-10 h-10 rounded-full bg-success/20 items-center justify-center">
+            <View className="w-10 h-10 rounded-full bg-bgc_2 items-center justify-center">
               <Feather name="upload" size={20} color="#10b981" />
             </View>
             <View className="ml-4">
-              <Text className="text-bg_primary font-semibold">
-                Restore Data
-              </Text>
-              <Text className="text-bg_primary/40 text-[10px]">
+              <Text className="text-tc_1 font-semibold">Restore Data</Text>
+              <Text className="text-tc_1/40 text-[10px]">
                 Import from a JSON file
               </Text>
             </View>

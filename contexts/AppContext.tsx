@@ -1,6 +1,6 @@
-import { Account, Currency, Transaction, currencies } from "@/types/type";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { Account, Currency, Transaction, currencies } from "../types/type";
 import KEYS from "../utils/keys";
 
 interface AccountContextType {
@@ -25,7 +25,6 @@ export const AccountProvider = ({
     currencies[0]
   );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
@@ -54,6 +53,12 @@ export const AccountProvider = ({
   useEffect(() => {
     AsyncStorage.setItem(KEYS.USER_ACCOUNTS_LS, JSON.stringify(accounts));
   }, [accounts]);
+
+  useEffect(() => {
+    if (transactions.length > 0) {
+      AsyncStorage.setItem(KEYS.TRANSACTIONS_LS, JSON.stringify(transactions));
+    }
+  }, [transactions]);
 
   const setCurrencyType = (c: Currency) => {
     setCurrencyTypeState(c);

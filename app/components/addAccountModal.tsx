@@ -5,7 +5,7 @@ import {
   currencies,
   Currency,
 } from "@/types/type";
-import React from "react";
+import React, { useMemo } from "react";
 import { Modal, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AccountTypeSelector from "./accountTypeSelector";
@@ -68,25 +68,30 @@ const AddAccountModal = ({
     return list;
   }, [currencyType]);
 
+  const sortedAccountTypes = useMemo(() => {
+    return [
+      accountType,
+      ...AccountTypes.filter((item) => item.name !== accountType.name),
+    ];
+  }, [accountType]);
+
   return (
     <Modal visible={modalVisible} transparent={false} animationType="slide">
-      <SafeAreaView className="flex-1 bg-primary justify-start bg-bg_primary">
+      <SafeAreaView className="flex-1 bg-primary justify-start bg-bgc_1">
         <View className="rounded-t-3xl p-4">
-          <Text className="text-text_primary text-2xl font-bold mb-4">
+          <Text className="text-tc_1 text-2xl font-bold mb-4">
             Add New Account
           </Text>
 
           <AccountTypeSelector
             currentAccountType={accountType}
             onSelect={handleAccountType}
-            accountTypes={AccountTypes}
+            accountTypes={sortedAccountTypes}
           />
 
           {accountType.value === "credit-card" && (
             <View className="flex-row items-center">
-              <Text className="flex-1 text-text_primary font-bold">
-                Card Limit
-              </Text>
+              <Text className="flex-1 text-tc_1 font-bold">Card Limit</Text>
               <TextInput
                 placeholder="Credit limit"
                 placeholderTextColor="#71717a"
@@ -97,15 +102,13 @@ const AddAccountModal = ({
                   )
                 }
                 keyboardType="decimal-pad"
-                className="flex-1 bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
+                className="flex-1 bg-zinc-800 text-tc_1 rounded-xl px-4 py-4 mb-4"
               />
             </View>
           )}
 
           <View className="flex-row items-center mb-4">
-            <Text className="flex-1 text-text_primary font-bold">
-              Current Balance
-            </Text>
+            <Text className="flex-1 text-tc_1 font-bold">Current Balance</Text>
             <TextInput
               placeholder="Current balance"
               placeholderTextColor="#71717a"
@@ -116,7 +119,7 @@ const AddAccountModal = ({
                 )
               }
               keyboardType="decimal-pad"
-              className="flex-1 bg-zinc-800 text-text_primary rounded-xl px-4 py-4"
+              className="flex-1 bg-zinc-800 text-tc_1 rounded-xl px-4 py-4"
             />
           </View>
 
@@ -128,7 +131,7 @@ const AddAccountModal = ({
               onChangeText={handleId}
               keyboardType="numeric"
               maxLength={4}
-              className="flex-2 bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
+              className="flex-2 bg-zinc-800 text-tc_1 rounded-xl px-4 py-4 mb-4"
             />
 
             <TextInput
@@ -137,7 +140,7 @@ const AddAccountModal = ({
               value={accountName}
               onChangeText={handleAccountName}
               keyboardType="default"
-              className="flex-1 bg-zinc-800 text-text_primary rounded-xl px-4 py-4 mb-4"
+              className="flex-1 bg-zinc-800 text-tc_1 rounded-xl px-4 py-4 mb-4"
             />
           </View>
 
@@ -159,7 +162,7 @@ const AddAccountModal = ({
               onPress={() => handleModalVisibility(false)}
               className="flex-1 bg-zinc-800 py-4 rounded-xl"
             >
-              <Text className="text-text_primary text-center font-semibold">
+              <Text className="text-tc_1 text-center font-semibold">
                 Cancel
               </Text>
             </TouchableOpacity>
@@ -168,7 +171,7 @@ const AddAccountModal = ({
               onPress={handleAddAccount}
               className="flex-1 bg-accent py-4 rounded-xl"
             >
-              <Text className="text-text_primary text-center font-semibold">
+              <Text className="text-tc_1 text-center font-semibold">
                 Add Account
               </Text>
             </TouchableOpacity>

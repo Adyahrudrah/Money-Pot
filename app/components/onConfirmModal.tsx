@@ -27,10 +27,8 @@ const ConfirmRemoveModal: React.FC<ConfirmRemoveModalProps> = ({
           <Text className=" text-xl font-bold mb-4">Confirm Deletion</Text>
           <Text className=" text-base mb-6">
             Are you sure you want to remove the account{" "}
-            <Text className="text-xl text-text_primary font-bold">
-              {accountName}
-            </Text>
-            ? This action cannot be undone.
+            <Text className="text-xl text-tc_1 font-bold">{accountName}</Text>?
+            This action cannot be undone.
           </Text>
 
           <View className="flex-row justify-end gap-4">

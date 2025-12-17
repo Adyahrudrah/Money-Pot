@@ -1,211 +1,205 @@
-import { SmsMessage, Transaction } from "@/types/type";
+import { Account, AccountTypeList, AccountTypes } from "@/types/type";
 import { Feather } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect, useState } from "react";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import "../../global.css";
-import EditTransactionModal from "../components/editTransactionModal";
-import { useAccounts } from "../contexts/AppContext";
-import useSmsFetcher from "../hooks/useSmsFetcher";
-import KEYS from "../utils/keys";
-import { getFromAsyncStorage, saveToAsyncStorage } from "../utils/utils";
+import { useAccounts } from "../../contexts/AppContext";
+import KEYS from "../../utils/keys";
+import { saveToAsyncStorage } from "../../utils/utils";
+import AccountCard from "../components/accountCard";
+import AddAccountModal from "../components/addAccountModal";
+import ConfirmRemoveModal from "../components/onConfirmModal";
 
-const Index: React.FC = () => {
-  const { messages, loading, error } = useSmsFetcher();
-  const { accounts, transactions, currencyType, setTransactions } =
+const Accounts = () => {
+  const { accounts, setAccounts, setCurrencyType, currencyType } =
     useAccounts();
-  const [newTransactionMsgs, setNewTransactionMsgs] = useState<
-    SmsMessage[] | null
-  >(null);
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<Transaction | null>(null);
-  const [toggleEditModal, setToggleEditModal] = useState<boolean>(false);
+  const [parentAccountId, setParentAccountId] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [id, setId] = useState<string>("");
+  const [accountName, setAccountName] = useState<string>("");
+  const [accountType, setAccountType] = useState<AccountTypeList>(
+    AccountTypes[0]
+  );
+  const [balance, setBalance] = useState<number>(0);
+  const [limit, setAccountLimit] = useState<number>(0);
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [accountToRemove, setAccountToRemove] = useState<Account | null>(null);
 
   useEffect(() => {
-    if (accounts && accounts.length > 0 && messages.length > 0) {
-      const transactionMessages: SmsMessage[] = messages.flatMap((message) => {
-        const matchingAccount = accounts.find(
-          (acc) =>
-            message.body.includes(acc.id) && message.date > acc.added_date
-        );
-        if (!matchingAccount) return [];
-        return [{ ...message, account_id: matchingAccount.id }];
-      });
-      setNewTransactionMsgs(transactionMessages);
-    }
-  }, [accounts, messages]);
-
-  const processTransactions = useCallback((transactionsMsgs: SmsMessage[]) => {
-    const txs: Transaction[] = [];
-    for (const msg of transactionsMsgs) {
-      if (msg.body.match(KEYS.FILTER_KEYS_REGEX)) {
-        continue;
+    if (parentAccountId) {
+      const parentAccount = accounts.find(
+        (account) => account.id === parentAccountId
+      );
+      if (parentAccount) {
+        setBalance(parentAccount.balance);
       }
-      const amountMatch = msg.body.match(KEYS.AMOUNT_REGEX);
-      const cpMatch = msg.body.match(KEYS.COUNTER_PARTY_REGEX);
-      if (amountMatch) {
-        const amount = parseFloat(
-          amountMatch[0].replace(/,/g, "").replace(/Rs\.?/, "")
-        );
-        const txsType = cpMatch ? "debit" : "credit";
-        const counter_party = cpMatch ? cpMatch[0] : "Received";
+    } else {
+      setBalance(0);
+    }
+  }, [parentAccountId]);
 
-        txs.push({
-          message_body: msg.body,
-          id: msg.date,
-          type: txsType,
-          amount: amount,
-          date: msg.date,
-          counter_party,
-          account_id: msg.account_id,
+  const handleAddAccount = () => {
+    if (id && balance && currencyType && accountType && accountName) {
+      saveToAsyncStorage(KEYS.CURRENCY_TYPE_LS, currencyType.sign);
+
+      const newAccount: Account = {
+        id,
+        account_name: accountName,
+        account_type: accountType,
+        balance,
+        currency_type: currencyType,
+        added_date: Date.now(),
+        parent_account_id: parentAccountId,
+        limit: limit ? limit : null,
+      };
+      const isExistingAccount = accounts.find((acc) => acc.id === id);
+      if (!isExistingAccount) {
+        setAccounts((prevAccounts) => [...prevAccounts, newAccount]);
+      } else {
+        setAccounts((prevAccounts) => {
+          const accountToUpdate = prevAccounts.find(
+            (acc) => acc.id === isExistingAccount.id
+          );
+
+          if (accountToUpdate) {
+            const newAccount: Account = {
+              id: accountToUpdate.id,
+              account_name: accountName,
+              account_type: accountType,
+              balance,
+              added_date: accountToUpdate.added_date,
+              currency_type: currencyType,
+              parent_account_id: parentAccountId,
+              limit: limit ? limit : accountToUpdate.limit,
+            };
+            return [...prevAccounts].map((acc) =>
+              acc.id === newAccount.id ? newAccount : acc
+            );
+          } else {
+            return prevAccounts;
+          }
         });
       }
+      setModalVisible(false);
+      setId("");
+      setAccountName("");
+      setBalance(0);
+      setAccountLimit(0);
     }
-    return txs;
-  }, []);
-
-  useEffect(() => {
-    const getStoredMessages = async () => {
-      const storedMessages = await getFromAsyncStorage(KEYS.MESSAGES_LS).then(
-        (data) => {
-          if (data) {
-            return JSON.parse(data);
-          }
-        }
-      );
-      if (storedMessages && newTransactionMsgs) {
-        const processedStoredTxs = processTransactions(storedMessages);
-        const processedNewTxs = processTransactions(newTransactionMsgs);
-        setTransactions([...processedNewTxs, ...processedStoredTxs]);
-      } else if (newTransactionMsgs) {
-        const processedNewTxs = processTransactions(newTransactionMsgs);
-        await saveToAsyncStorage(
-          KEYS.MESSAGES_LS,
-          JSON.stringify(newTransactionMsgs)
-        );
-        setTransactions(processedNewTxs);
-      }
-    };
-    getStoredMessages();
-  }, [newTransactionMsgs, processTransactions, setTransactions]);
-
-  const renderMessage = ({ item }: { item: Transaction }) => {
-    const isDebit = item.type === "debit";
-
-    return (
-      <Pressable
-        onPress={() => {
-          setSelectedTransaction(item);
-          setToggleEditModal(true);
-        }}
-      >
-        <View className="flex-row items-center justify-between p-4 mb-3 bg-bg_secondary rounded-2xl border shadow-sm mx-4">
-          <View className="flex-row items-center flex-1">
-            {/* Initial Avatar */}
-            <View className="w-10 h-10 rounded-full bg-bg_tertiary items-center justify-center">
-              <Text className="font-bold text-sm text-bg_primary">
-                {(item.counter_party || "?").charAt(0).toUpperCase()}
-              </Text>
-            </View>
-
-            <View className="ml-3 flex-1">
-              <Text
-                className="text-bg_primary font-bold text-[15px] leading-tight"
-                numberOfLines={1}
-              >
-                {item.counter_party}
-              </Text>
-              {item.date && (
-                <Text className="text-bg_primary opacity-60 text-xs mt-1">
-                  {new Date(item.date).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    year: "2-digit",
-                  })}
-                </Text>
-              )}
-            </View>
-          </View>
-
-          {item.amount && (
-            <View className="items-end ml-2">
-              <Text
-                className={`font-bold text-xl ${isDebit ? "text-error" : "text-success"}`}
-              >
-                {isDebit ? "-" : "+"}
-                {currencyType.sign}
-                {item.amount.toLocaleString()}
-              </Text>
-            </View>
-          )}
-        </View>
-      </Pressable>
-    );
   };
 
+  const handleEditAccount = (account: Account) => {
+    setModalVisible(true);
+    setId(account.id);
+    setAccountName(account.account_name);
+    setAccountType(account.account_type);
+    setBalance(account.balance);
+    setParentAccountId(account.parent_account_id);
+    if (account.limit) {
+      setAccountLimit(account.limit);
+    }
+  };
+
+  const handleRemoveAccountRequest = (account: Account) => {
+    setAccountToRemove(account);
+    setIsConfirmModalVisible(true);
+  };
+
+  // NEW: Function to execute the removal after confirmation
+  const handleConfirmRemove = () => {
+    if (accountToRemove) {
+      const availableAccounts = accounts.filter(
+        (acc) => acc.id !== accountToRemove.id
+      );
+      setAccounts(availableAccounts);
+    }
+
+    setAccountToRemove(null);
+    setIsConfirmModalVisible(false);
+  };
+
+  // NEW: Function to cancel the removal
+  const handleCancelRemove = () => {
+    setAccountToRemove(null);
+    setIsConfirmModalVisible(false);
+  };
+
+  // UPDATED: renderAccountCard now passes the request function
+  const renderAccountCard = ({ item }: { item: Account }) => (
+    <AccountCard
+      item={item}
+      handleEditAccount={handleEditAccount}
+      handleRemoveAccount={handleRemoveAccountRequest}
+    />
+  );
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1 bg-bg_primary">
+    <SafeAreaView className="flex-1 bg-bgc_1">
+      <View className="flex-1 px-6 pt-8">
+        {accounts.length === 0 ? (
+          <View className="flex-1 justify-center items-center">
+            <Text className="text-tc_1 text-lg">
+              Your accounts will appear here...
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={accounts}
+            keyExtractor={(item) => item.id}
+            renderItem={renderAccountCard}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 100 }}
+          />
+        )}
+      </View>
+
+      <LinearGradient
+        colors={["#f43f5e", "#323078"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        className="absolute right-[45%] bottom-6"
+        style={{ borderRadius: 50 }}
+      >
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => {}}
-          className="absolute right-6 bottom-6 w-12 h-12 rounded-full bg-accent justify-center items-center shadow-lg shadow-black/50"
-          style={{ elevation: 1 }}
+          onPress={() => setModalVisible(true)}
+          className="w-12 h-12 rounded-full  justify-center items-center"
         >
           <Feather name="plus" size={32} color="white" />
         </TouchableOpacity>
-        <View className="px-4 py-4">
-          <Text className="text-2xl font-bold text-text_primary">
-            Recent Activity
-          </Text>
-        </View>
+      </LinearGradient>
 
-        {loading && (
-          <View className="flex-1 justify-center items-center">
-            <ActivityIndicator size="large" color="#f43f5e" />
-          </View>
-        )}
-
-        {error && (
-          <View className="p-4 items-center">
-            <Feather name="alert-triangle" size={32} color="red" />
-            <Text className="text-error mt-2">Error loading messages</Text>
-          </View>
-        )}
-
-        <FlatList
-          data={transactions}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderMessage}
-          contentContainerStyle={{ paddingBottom: 20 }}
-          ListEmptyComponent={
-            !loading ? (
-              <View className="mt-10 items-center">
-                <Text className="text-center text-text_primary opacity-40">
-                  No transactions found
-                </Text>
-              </View>
-            ) : null
-          }
+      <AddAccountModal
+        parentAccount={parentAccountId}
+        handleParentAccountSelect={(value) => setParentAccountId(value)}
+        accounts={accounts}
+        modalVisible={modalVisible}
+        handleModalVisibility={(value) => setModalVisible(value)}
+        id={id}
+        handleId={(value) => setId(value)}
+        accountName={accountName}
+        handleAccountName={(value) => setAccountName(value)}
+        balance={balance}
+        handleBalance={(value) => setBalance(value)}
+        limit={limit}
+        handleLimit={(value) => setAccountLimit(value)}
+        accountType={accountType}
+        handleAccountType={(value) => setAccountType(value)}
+        currencyType={currencyType}
+        handleCurrency={(value) => setCurrencyType(value)}
+        handleAddAccount={handleAddAccount}
+      />
+      {accountToRemove && (
+        <ConfirmRemoveModal
+          isVisible={isConfirmModalVisible}
+          accountName={accountToRemove.id}
+          onConfirm={handleConfirmRemove}
+          onCancel={handleCancelRemove}
         />
-
-        {toggleEditModal && (
-          <EditTransactionModal
-            transaction={selectedTransaction}
-            onClose={() => setToggleEditModal(false)}
-          />
-        )}
-      </SafeAreaView>
-    </GestureHandlerRootView>
+      )}
+    </SafeAreaView>
   );
 };
 
-export default Index;
+export default Accounts;

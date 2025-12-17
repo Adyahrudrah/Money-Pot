@@ -61,7 +61,6 @@ export interface Account {
   currency_type: Currency;
   added_date: number;
   parent_account_id: string | null;
-  transactions: Transaction[];
   limit?: number | null;
 }
 
@@ -71,45 +70,44 @@ export interface Transaction {
   date: number;
   amount: number;
   type: "credit" | "debit";
-  name?: string;
   counter_party?: string;
   category?: string;
   account_id?: string;
 }
 
 export const debit_categories = [
-  "Food", // Groceries, Dining Out, Coffee
-  "Travel", // Transport, Flights, Vacation
-  "Housing", // Rent/Mortgage, Maintenance
-  "Utilities", // Electricity, Water, Internet, Phone
-  "Transportation", // Gas/Fuel, Public Transit, Car Maintenance
-  "Shopping", // Clothes, Electronics, Household Items
-  "Entertainment", // Movies, Streaming, Hobbies, Events
-  "Health", // Medical, Pharmacy, Gym/Fitness
-  "Insurance", // Health, Car, Home/Renters
-  "Education", // Tuition, Books, Courses
-  "Personal Care", // Beauty, Haircut, Grooming
-  "Subscriptions", // Netflix, Spotify, Apps
-  "Bills & Fees", // Bank Fees, Late Fees
-  "Debt Payments", // Loans, Credit Card Minimums
-  "Gifts & Donations", // Charity, Birthdays, Holidays
-  "Pets", // Food, Vet, Supplies
-  "Kids & Family", // Childcare, Toys, Activities
-  "Miscellaneous", // Catch-all for uncategorized
+  "🍔 Food",
+  "✈️ Travel",
+  "🏠 Housing",
+  "🔌 Utilities",
+  "🚗 Transportation",
+  "🛍️ Shopping",
+  "🎬 Entertainment",
+  "🏥 Health",
+  "🛡️ Insurance",
+  "📚 Education",
+  "💅 Personal Care",
+  "📱 Subscriptions",
+  "💸 Bills & Fees",
+  "💳 Debt Payments",
+  "🎁 Gifts & Donations",
+  "🐾 Pets",
+  "👨‍👩‍👧‍👦 Kids & Family",
+  "🌀 Miscellaneous",
 ];
 
 export const credit_categories = [
-  "Salary", // Main Job Paycheck
-  "Investment", // Dividends, Interest, Stock Gains
-  "Freelance", // Side Gigs, Consulting
-  "Business", // Self-Employment, Sales
-  "Bonus", // Work Bonus, Performance
-  "Gifts", // Birthday, Holiday Money
-  "Refunds", // Returns, Reimbursements
-  "Rental Income", // Property Rent
-  "Pension", // Retirement Payments
-  "Benefits", // Unemployment, Government Aid
-  "Miscellaneous", // Miscellaneous Inflows
+  "💰 Salary",
+  "📈 Investment",
+  "💻 Freelance",
+  "🏢 Business",
+  "🎊 Bonus",
+  "🧧 Gifts",
+  "🔙 Refunds",
+  "🏘️ Rental Income",
+  "👴 Pension",
+  "🏛️ Benefits",
+  "🌀 Miscellaneous",
 ];
 
 export interface Currency {

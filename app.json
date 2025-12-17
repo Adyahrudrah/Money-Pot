@@ -4,7 +4,7 @@
     "slug": "Money-Pot",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon_new.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "moneypot",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

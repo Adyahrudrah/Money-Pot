@@ -10,13 +10,14 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        bg_primary: "#18181b",
-        bg_secondary: "#a1a1aa",
-        bg_tertiary: "#d4d4d8",
-        text_primary: "#d4d4d8",
+        bgc_1: "#18181b",
+        bgc_2: "#27272a",
+        bgc_3: "#52525b",
+        tc_1: "#d4d4d8",
+        bc_1: "#52525b",
         accent: "#f43f5e",
-        success: "#065f46",
-        error: "#991b1b",
+        success: "#10b981",
+        error: "#f43f5e",
       },
     },
   },

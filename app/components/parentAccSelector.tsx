@@ -13,7 +13,7 @@ const AccountSelector: React.FC<accountSelectorProps> = ({
   onSelect,
   accounts,
 }) => (
-  <View className="bg-dark-800 rounded-xl p-2 text-text_primary ">
+  <View className="bg-dark-800 rounded-xl p-2 text-tc_1 ">
     <FlatList
       data={accounts}
       keyExtractor={(item) => item.id}
@@ -31,12 +31,12 @@ const AccountSelector: React.FC<accountSelectorProps> = ({
               : "border-zinc-700"
           }`}
         >
-          <Text className="text-text_primary">
+          <Text className="text-tc_1">
             <MaterialIcons name="merge" size={16} />
           </Text>
-          <Text className="text-text_primary font-medium">{item.id}</Text>
+          <Text className="text-tc_1 font-medium">{item.id}</Text>
           {currentAccountId === item.id && (
-            <Text className="text-text_primary"> ( Primary Account )</Text>
+            <Text className="text-tc_1"> ( Primary Account )</Text>
           )}
         </TouchableOpacity>
       )}

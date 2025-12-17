@@ -1,10 +1,8 @@
 // useSmsFetcher.ts
 import { useCallback, useEffect, useState } from "react";
 import SmsAndroid from "react-native-get-sms-android";
-import { SmsMessage } from "../../types/type";
 import requestSmsPermission from "../services/requestPermission";
-import KEYS from "../utils/keys";
-import { getFromAsyncStorage } from "../utils/utils";
+import { SmsMessage } from "../types/type";
 
 // Define the shape of the data the hook returns
 interface UseSmsFetcherResult {
@@ -20,13 +18,6 @@ const useSmsFetcher = (): UseSmsFetcherResult => {
   const [error, setError] = useState<string | null>(null);
 
   const loadAllSms = useCallback(async () => {
-    const storedMessages: SmsMessage[] | null = await getFromAsyncStorage(
-      KEYS.MESSAGES_LS
-    ).then((data) => {
-      if (data) {
-        return JSON.parse(data);
-      }
-    });
     setError(null);
     const hasPermission = await requestSmsPermission();
     if (!hasPermission) {
@@ -47,17 +38,11 @@ const useSmsFetcher = (): UseSmsFetcherResult => {
         console.error(errorMessage);
         setError(errorMessage);
       },
-      (count: number, smsList: string) => {
+      async (count: number, smsList: string) => {
         try {
           const parsed: SmsMessage[] = JSON.parse(smsList);
           parsed.sort((a, b) => b.date - a.date);
-          if (storedMessages && storedMessages.length > 0) {
-            setMessages(
-              parsed.filter((msg) => msg.date > storedMessages[0].date)
-            );
-          } else {
-            setMessages(parsed);
-          }
+          setMessages(parsed);
         } catch (parseErr) {
           const errorMessage = `Failed to parse SMS list: ${parseErr}`;
           console.error(errorMessage);
