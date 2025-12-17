@@ -4,7 +4,7 @@
     "slug": "Money-Pot",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon_new.png",
     "scheme": "moneypot",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -20,7 +20,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.s1v4p4nd1.MoneyPot"
+      "package": "com.s1v4p4nd1.MoneyPot",
+      "permissions": [
+        "android.permission.READ_SMS",
+        "android.permission.RECEIVE_SMS"
+      ]
     },
     "web": {
       "output": "static",
@@ -46,6 +50,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6dfdfad9-5bea-4776-890f-e9ea81d103ad"
+      }
     }
   }
 }

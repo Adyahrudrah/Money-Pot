@@ -97,10 +97,6 @@ const Index: React.FC = () => {
     getStoredMessages();
   }, [newTransactionMsgs, processTransactions, setTransactions]);
 
-  const handleTxsModal = () => {
-    setSelectedTransaction(null);
-  };
-
   const renderMessage = ({ item }: { item: Transaction }) => {
     const isDebit = item.type === "debit";
 
