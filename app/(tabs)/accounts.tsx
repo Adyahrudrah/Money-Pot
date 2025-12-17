@@ -47,10 +47,8 @@ const Accounts = () => {
             }));
             setAccounts(updatedAccounts);
           } else {
-            console.log(parsedAccounts);
             setAccounts(parsedAccounts);
           }
-
           setCurrencyType(parsedAccounts[0].currency_type);
         }
       }

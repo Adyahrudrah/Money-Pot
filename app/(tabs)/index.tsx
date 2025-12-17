@@ -6,13 +6,13 @@ import {
   FlatList,
   Pressable,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "../../global.css";
-import TransactionModal from "../components/transactionModal";
+import EditTransactionModal from "../components/editTransactionModal";
 import { useAccounts } from "../contexts/AppContext";
 import useSmsFetcher from "../hooks/useSmsFetcher";
 import KEYS from "../utils/keys";
@@ -27,6 +27,7 @@ const Index: React.FC = () => {
   >(null);
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
+  const [toggleEditModal, setToggleEditModal] = useState<boolean>(false);
 
   useEffect(() => {
     if (accounts && accounts.length > 0 && messages.length > 0) {
@@ -38,7 +39,6 @@ const Index: React.FC = () => {
         if (!matchingAccount) return [];
         return [{ ...message, account_id: matchingAccount.id }];
       });
-      console.log(transactionMessages);
       setNewTransactionMsgs(transactionMessages);
     }
   }, [accounts, messages]);
@@ -60,7 +60,7 @@ const Index: React.FC = () => {
 
         txs.push({
           message_body: msg.body,
-          id: msg._id,
+          id: msg.date,
           type: txsType,
           amount: amount,
           date: msg.date,
@@ -101,81 +101,73 @@ const Index: React.FC = () => {
     setSelectedTransaction(null);
   };
 
-  // Revealed Review button when swiping
-  const renderRightActions = (item: Transaction) => {
-    return (
-      <Pressable
-        onPress={() => {
-          console.log("Reviewing item:", item.id);
-        }}
-        className="bg-bg_secondary justify-center items-center w-24 mb-3 rounded-2xl mr-4"
-      >
-        <Feather name="edit-3" size={24} color="#18181b" />
-        <Text className="text-[10px] font-bold mt-1 uppercase">Review</Text>
-      </Pressable>
-    );
-  };
-
   const renderMessage = ({ item }: { item: Transaction }) => {
     const isDebit = item.type === "debit";
 
     return (
-      <Swipeable
-        renderRightActions={() => renderRightActions(item)}
-        rightThreshold={40}
+      <Pressable
+        onPress={() => {
+          setSelectedTransaction(item);
+          setToggleEditModal(true);
+        }}
       >
-        {/* Pressable handles the Modal opening */}
-        <Pressable onPress={() => setSelectedTransaction(item)}>
-          <View className="flex-row items-center justify-between p-4 mb-3 bg-bg_secondary rounded-2xl border shadow-sm mx-4">
-            <View className="flex-row items-center flex-1">
-              {/* Initial Avatar */}
-              <View className="w-10 h-10 rounded-full bg-bg_tertiary items-center justify-center">
-                <Text className="font-bold text-sm text-bg_primary">
-                  {(item.counter_party || "?").charAt(0).toUpperCase()}
-                </Text>
-              </View>
-
-              <View className="ml-3 flex-1">
-                <Text
-                  className="text-bg_primary font-bold text-[15px] leading-tight"
-                  numberOfLines={1}
-                >
-                  {item.counter_party}
-                </Text>
-                {item.date && (
-                  <Text className="text-bg_primary opacity-60 text-xs mt-1">
-                    {new Date(item.date).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      year: "2-digit",
-                    })}
-                  </Text>
-                )}
-              </View>
+        <View className="flex-row items-center justify-between p-4 mb-3 bg-bg_secondary rounded-2xl border shadow-sm mx-4">
+          <View className="flex-row items-center flex-1">
+            {/* Initial Avatar */}
+            <View className="w-10 h-10 rounded-full bg-bg_tertiary items-center justify-center">
+              <Text className="font-bold text-sm text-bg_primary">
+                {(item.counter_party || "?").charAt(0).toUpperCase()}
+              </Text>
             </View>
 
-            {item.amount && (
-              <View className="items-end ml-2">
-                <Text
-                  className={`font-bold text-xl ${isDebit ? "text-error" : "text-success"}`}
-                >
-                  {isDebit ? "-" : "+"}
-                  {currencyType.sign}
-                  {item.amount.toLocaleString()}
+            <View className="ml-3 flex-1">
+              <Text
+                className="text-bg_primary font-bold text-[15px] leading-tight"
+                numberOfLines={1}
+              >
+                {item.counter_party}
+              </Text>
+              {item.date && (
+                <Text className="text-bg_primary opacity-60 text-xs mt-1">
+                  {new Date(item.date).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "2-digit",
+                  })}
                 </Text>
-              </View>
-            )}
+              )}
+            </View>
           </View>
-        </Pressable>
-      </Swipeable>
+
+          {item.amount && (
+            <View className="items-end ml-2">
+              <Text
+                className={`font-bold text-xl ${isDebit ? "text-error" : "text-success"}`}
+              >
+                {isDebit ? "-" : "+"}
+                {currencyType.sign}
+                {item.amount.toLocaleString()}
+              </Text>
+            </View>
+          )}
+        </View>
+      </Pressable>
     );
   };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView className="flex-1 bg-bg_primary">
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => {}}
+          className="absolute right-6 bottom-6 w-12 h-12 rounded-full bg-accent justify-center items-center shadow-lg shadow-black/50"
+          style={{ elevation: 1 }}
+        >
+          <Feather name="plus" size={32} color="white" />
+        </TouchableOpacity>
         <View className="px-4 py-4">
-          <Text className="text-2xl font-bold text-bg_primary">
+          <Text className="text-2xl font-bold text-text_primary">
             Recent Activity
           </Text>
         </View>
@@ -209,10 +201,10 @@ const Index: React.FC = () => {
           }
         />
 
-        {selectedTransaction && (
-          <TransactionModal
-            handleTxsMoal={handleTxsModal}
-            selectedTransaction={selectedTransaction}
+        {toggleEditModal && (
+          <EditTransactionModal
+            transaction={selectedTransaction}
+            onClose={() => setToggleEditModal(false)}
           />
         )}
       </SafeAreaView>

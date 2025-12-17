@@ -74,8 +74,6 @@ export interface Transaction {
   name?: string;
   counter_party?: string;
   category?: string;
-  notes?: string;
-  tags?: string[];
   account_id?: string;
 }
 
