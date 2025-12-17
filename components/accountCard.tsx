@@ -1,9 +1,9 @@
+import { useAccounts } from "@/contexts/AppContext";
+import { Account } from "@/types/type";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import { useAccounts } from "../../contexts/AppContext";
-import { Account } from "../../types/type";
 
 interface AccountCardProps {
   item: Account;

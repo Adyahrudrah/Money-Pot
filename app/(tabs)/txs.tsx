@@ -1,4 +1,10 @@
+import AddTransactionModal from "@/components/addTransactionModal";
+import EditTransactionModal from "@/components/editTransactionModal";
+import { useAccounts } from "@/contexts/AppContext";
+import "@/global.css";
+import useSmsFetcher from "@/hooks/useSmsFetcher";
 import { SmsMessage, Transaction } from "@/types/type";
+import KEYS from "@/utils/keys";
 import { Feather } from "@expo/vector-icons";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -11,12 +17,6 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAccounts } from "../../contexts/AppContext";
-import "../../global.css";
-import useSmsFetcher from "../../hooks/useSmsFetcher";
-import KEYS from "../../utils/keys";
-import AddTransactionModal from "../components/addTransactionModal";
-import EditTransactionModal from "../components/editTransactionModal";
 
 const Index: React.FC = () => {
   const { messages, loading, error } = useSmsFetcher();
@@ -166,7 +166,7 @@ const Index: React.FC = () => {
           ListEmptyComponent={
             !loading ? (
               <View className="mt-[80%]">
-                <Text className="text-center text-text_primary opacity-40">
+                <Text className="text-center text-tc_1 opacity-40">
                   No transactions found
                 </Text>
               </View>

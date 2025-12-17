@@ -1,7 +1,7 @@
+import { AccountProvider } from "@/contexts/AppContext";
 import { Feather, Octicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
-import { AccountProvider } from "../../contexts/AppContext";
 
 export default function _Layout() {
   return (

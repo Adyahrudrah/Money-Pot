@@ -1,7 +1,7 @@
+import { Account, Currency, Transaction, currencies } from "@/types/type";
+import KEYS from "@/utils/keys";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Account, Currency, Transaction, currencies } from "../types/type";
-import KEYS from "../utils/keys";
 
 interface AccountContextType {
   accounts: Account[];

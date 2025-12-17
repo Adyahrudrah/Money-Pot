@@ -1,15 +1,16 @@
+import AccountCard from "@/components/accountCard";
+import AddAccountModal from "@/components/addAccountModal";
+import ConfirmRemoveModal from "@/components/onConfirmModal";
+import { useAccounts } from "@/contexts/AppContext";
+import requestSmsPermission from "@/services/requestPermission";
 import { Account, AccountTypeList, AccountTypes } from "@/types/type";
+import KEYS from "@/utils/keys";
+import { saveToAsyncStorage } from "@/utils/utils";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAccounts } from "../../contexts/AppContext";
-import KEYS from "../../utils/keys";
-import { saveToAsyncStorage } from "../../utils/utils";
-import AccountCard from "../components/accountCard";
-import AddAccountModal from "../components/addAccountModal";
-import ConfirmRemoveModal from "../components/onConfirmModal";
 
 const Accounts = () => {
   const { accounts, setAccounts, setCurrencyType, currencyType } =
@@ -101,6 +102,10 @@ const Accounts = () => {
     }
   };
 
+  useEffect(() => {
+    requestSmsPermission();
+  });
+
   const handleRemoveAccountRequest = (account: Account) => {
     setAccountToRemove(account);
     setIsConfirmModalVisible(true);
@@ -139,8 +144,8 @@ const Accounts = () => {
       <View className="flex-1 px-6 pt-8">
         {accounts.length === 0 ? (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-tc_1 text-lg">
-              Your accounts will appear here...
+            <Text className="text-tc_1 text-lg opacity-40">
+              Click {" + "} to add a new card or account...
             </Text>
           </View>
         ) : (

@@ -1,8 +1,8 @@
 // useSmsFetcher.ts
+import requestSmsPermission from "@/services/requestPermission";
+import { SmsMessage } from "@/types/type";
 import { useCallback, useEffect, useState } from "react";
 import SmsAndroid from "react-native-get-sms-android";
-import requestSmsPermission from "../services/requestPermission";
-import { SmsMessage } from "../types/type";
 
 // Define the shape of the data the hook returns
 interface UseSmsFetcherResult {
